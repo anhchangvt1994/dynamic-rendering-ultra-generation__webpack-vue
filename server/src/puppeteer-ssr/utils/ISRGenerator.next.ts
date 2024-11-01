@@ -7,7 +7,7 @@ import ServerConfig from '../../server.config'
 import Console from '../../utils/ConsoleHandler'
 import { PROCESS_ENV } from '../../utils/InitEnv'
 import { ISSRResult } from '../types'
-import CacheManager from './CacheManager.worker'
+import CacheManager from './CacheManager.worker/utils'
 import ISRHandler from './ISRHandler.worker'
 
 interface IISRGeneratorParams {
@@ -159,7 +159,10 @@ const SSRGenerator = async ({
 										}
 									).finally(() => {
 										if (ISRHandlerParams.forceToCrawl) {
-											totalRequestsWaitingToCrawl--
+											totalRequestsWaitingToCrawl =
+												totalRequestsWaitingToCrawl > 0
+													? totalRequestsWaitingToCrawl - 1
+													: 0
 										} else {
 											totalRequestsToCrawl =
 												totalRequestsToCrawl > certainLimitRequestToCrawl
@@ -196,7 +199,10 @@ const SSRGenerator = async ({
 										...ISRHandlerParams,
 									}).finally(() => {
 										if (ISRHandlerParams.forceToCrawl) {
-											totalRequestsWaitingToCrawl--
+											totalRequestsWaitingToCrawl =
+												totalRequestsWaitingToCrawl > 0
+													? totalRequestsWaitingToCrawl - 1
+													: 0
 										} else {
 											totalRequestsToCrawl =
 												totalRequestsToCrawl > certainLimitRequestToCrawl
@@ -253,7 +259,11 @@ const SSRGenerator = async ({
 			if (isValidToScraping) {
 				if (ISRHandlerParams.forceToCrawl) {
 					// NOTE - update create time
-					await cacheManager.remove(ISRHandlerParams.url)
+					try {
+						await cacheManager.remove(ISRHandlerParams.url)
+					} catch (err) {
+						Console.error(err)
+					}
 					cacheManager.get()
 				} else {
 					resetTotalToCrawlTimeout()
@@ -284,7 +294,10 @@ const SSRGenerator = async ({
 								}
 							).finally(() => {
 								if (ISRHandlerParams.forceToCrawl) {
-									totalRequestsWaitingToCrawl--
+									totalRequestsWaitingToCrawl =
+										totalRequestsWaitingToCrawl > 0
+											? totalRequestsWaitingToCrawl - 1
+											: 0
 								} else {
 									totalRequestsToCrawl =
 										totalRequestsToCrawl > certainLimitRequestToCrawl
@@ -318,7 +331,10 @@ const SSRGenerator = async ({
 								...ISRHandlerParams,
 							}).finally(() => {
 								if (ISRHandlerParams.forceToCrawl) {
-									totalRequestsWaitingToCrawl--
+									totalRequestsWaitingToCrawl =
+										totalRequestsWaitingToCrawl > 0
+											? totalRequestsWaitingToCrawl - 1
+											: 0
 								} else {
 									totalRequestsToCrawl =
 										totalRequestsToCrawl > certainLimitRequestToCrawl

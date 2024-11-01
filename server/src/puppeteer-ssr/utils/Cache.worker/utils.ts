@@ -2,9 +2,11 @@ import crypto from 'crypto'
 import fs from 'fs'
 import path from 'path'
 import { brotliCompressSync } from 'zlib'
-import { pagesPath } from '../../../constants'
 import Console from '../../../utils/ConsoleHandler'
 import { ISSRResult } from '../../types'
+import { getPagesPath } from '../../../utils/PathHandler'
+
+const pagesPath = getPagesPath()
 
 export interface ICacheSetParams {
 	html: string
@@ -244,14 +246,12 @@ export const set = async (
 				fs.renameSync(`${pagesPath}/${key}.renew.br`, file)
 			} catch (err) {
 				Console.error(err)
-				return
 			}
 		else if (fs.existsSync(`${pagesPath}/${key}.raw.br`))
 			try {
 				fs.renameSync(`${pagesPath}/${key}.raw.br`, file)
 			} catch (err) {
 				Console.error(err)
-				return
 			}
 	}
 
@@ -266,7 +266,6 @@ export const set = async (
 			Console.log(`File ${file} was updated!`)
 		} catch (err) {
 			Console.error(err)
-			return
 		}
 	}
 
@@ -304,7 +303,6 @@ export const renew = async (url) => {
 			fs.renameSync(curFile, file)
 		} catch (err) {
 			Console.error(err)
-			return
 		}
 	}
 
@@ -336,13 +334,15 @@ export const remove = async (url: string) => {
 			fs.unlinkSync(`${pagesPath}/info/${key}.txt`),
 		])
 	} catch (err) {
-		console.error(err)
-		throw err
+		Console.error(err)
 	}
 } // remove
 
 export const rename = (params: { url: string; type?: 'raw' | 'renew' }) => {
-	if (!params || !params.url) return Console.log('Url can not empty!')
+	if (!params || !params.url) {
+		Console.log('Url can not empty!')
+		return
+	}
 
 	const key = getKey(params.url)
 	const file = `${pagesPath}/${key}${params.type ? '.' + params.type : ''}.br`
@@ -367,7 +367,6 @@ export const rename = (params: { url: string; type?: 'raw' | 'renew' }) => {
 			fs.renameSync(curFile, file)
 		} catch (err) {
 			Console.error(err)
-			return
 		}
 	}
 } // rename

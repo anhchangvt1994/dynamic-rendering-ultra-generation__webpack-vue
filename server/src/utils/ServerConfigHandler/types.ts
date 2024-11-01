@@ -36,7 +36,7 @@ export interface IServerConfigOptional {
 
 		content?: 'all' | Array<'desktop' | 'mobile'>
 
-		optimize?: 'all' | Array<'shallow' | 'deep' | 'script' | 'style'>
+		optimize?: 'low' | 'shallow' | 'deep' | Array<'script' | 'style'>
 
 		compress?: boolean
 
@@ -130,7 +130,7 @@ export interface IServerConfig extends IServerConfigOptional {
 
 		content: 'all' | Array<'desktop' | 'mobile'>
 
-		optimize: 'all' | Array<'shallow' | 'deep' | 'script' | 'style'>
+		optimize: 'low' | 'shallow' | 'deep' | Array<'script' | 'style'>
 
 		compress: boolean
 

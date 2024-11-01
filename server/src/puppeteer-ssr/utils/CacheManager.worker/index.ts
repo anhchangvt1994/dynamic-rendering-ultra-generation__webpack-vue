@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { pagesPath, resourceExtension } from '../../../constants'
+import { resourceExtension } from '../../../constants'
 import ServerConfig from '../../../server.config'
 import Console from '../../../utils/ConsoleHandler'
 import WorkerManager from '../../../utils/WorkerManager'
@@ -12,6 +12,9 @@ import {
 	isExist as isCacheExist,
 	getStatus as getCacheStatus,
 } from '../Cache.worker/utils'
+import { getPagesPath } from '../../../utils/PathHandler'
+
+const pagesPath = getPagesPath()
 
 const workerManager = WorkerManager.init(
 	path.resolve(__dirname, `./../Cache.worker/index.${resourceExtension}`),

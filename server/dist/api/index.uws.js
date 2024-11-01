@@ -129,9 +129,18 @@ const apiService = (async () => {
 			}
 
 			// NOTE - Get the Request information
-			const requestInfo = JSON.parse(
-				_StringHelper.decode.call(void 0, apiInfo.requestInfo || '')
-			)
+			const requestInfo = (() => {
+				let result
+				try {
+					result = JSON.parse(
+						_StringHelper.decode.call(void 0, apiInfo.requestInfo || '')
+					)
+				} catch (err) {
+					_ConsoleHandler2.default.error(err)
+				}
+
+				return result
+			})()
 
 			// NOTE - Response 500 Error if the requestInfo is empty
 			if (
@@ -387,23 +396,27 @@ const apiService = (async () => {
 
 					if (!res.writAbleEnded) {
 						res.writAbleEnded = true
-						res.cork(() => {
-							if (result.cookies && result.cookies.length) {
-								for (const cookie of result.cookies) {
-									res.writeHeader('Set-Cookie', cookie)
+						try {
+							res.cork(() => {
+								if (result.cookies && result.cookies.length) {
+									for (const cookie of result.cookies) {
+										res.writeHeader('Set-Cookie', cookie)
+									}
 								}
-							}
-							res
-								.writeStatus(
-									`${result.status}${
-										result.message ? ' ' + result.message : ''
-									}`
-								)
-								.writeHeader('Content-Type', 'application/json')
-								.writeHeader('Cache-Control', 'no-store')
-								.writeHeader('Content-Encoding', contentEncoding)
-								.end(data, true)
-						})
+								res
+									.writeStatus(
+										`${result.status}${
+											result.message ? ' ' + result.message : ''
+										}`
+									)
+									.writeHeader('Content-Type', 'application/json')
+									.writeHeader('Cache-Control', 'no-store')
+									.writeHeader('Content-Encoding', contentEncoding)
+									.end(data, true)
+							})
+						} catch (err) {
+							_ConsoleHandler2.default.error(err)
+						}
 					}
 				}
 			} // IF !res.writableEnded

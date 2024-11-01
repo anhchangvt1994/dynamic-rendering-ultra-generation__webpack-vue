@@ -3,7 +3,9 @@ import { resourceExtension } from '../../../../constants'
 import WorkerManager from '../../../../utils/WorkerManager'
 import Console from '../../../../utils/ConsoleHandler'
 import { IGetInternalHTMLParams, IGetInternalScriptParams } from './types'
-import { getInternalHTML, getInternalScript } from './utils'
+import // compressInternalImage,
+// compressExternalImage,
+'./utils'
 
 const workerManager = WorkerManager.init(
 	path.resolve(__dirname, `./worker.${resourceExtension}`),
@@ -84,4 +86,62 @@ export const getInternalHTMLWorker = async (params: IGetInternalHTMLParams) => {
 	return result
 } // getInternalHTML
 
-export { getInternalHTML, getInternalScript }
+// export const compressInternalImageWorker = async (image: Buffer | string) => {
+// 	if (!image) {
+// 		Console.error('Need provide `image`!')
+// 		return
+// 	}
+
+// 	const freePool = await workerManager.getFreePool()
+
+// 	let result
+// 	const pool = freePool.pool
+
+// 	try {
+// 		result = await pool.exec('compressInternalImage', [image])
+// 	} catch (err) {
+// 		throw new Error(err)
+// 	}
+
+// 	freePool.terminate({
+// 		force: true,
+// 		// delay: 30000,
+// 	})
+
+// 	return result
+// } // compressInternalImageWorker
+
+// export const compressExternalImageWorker = async (params: {
+// 	image: string
+// 	delay?: number
+// }) => {
+// 	if (!params.image) {
+// 		Console.error('Need provide `image`!')
+// 		return
+// 	}
+
+// 	params = {
+// 		delay: 0,
+// 		...params,
+// 	}
+
+// 	const freePool = await workerManager.getFreePool({
+// 		delay: params.delay,
+// 	})
+
+// 	let result
+// 	const pool = freePool.pool
+
+// 	try {
+// 		result = await pool.exec('compressExternalImage', [params.image])
+// 	} catch (err) {
+// 		throw new Error(err)
+// 	}
+
+// 	freePool.terminate({
+// 		force: true,
+// 		// delay: 30000,
+// 	})
+
+// 	return result
+// } // compressExternalImageWorker

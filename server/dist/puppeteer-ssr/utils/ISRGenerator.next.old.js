@@ -303,7 +303,11 @@ const SSRGenerator = async ({ isSkipWaiting = false, ...ISRHandlerParams }) => {
 				) {
 					if (ISRHandlerParams.forceToCrawl) {
 						// NOTE - update create time
-						await cacheManager.remove(ISRHandlerParams.url)
+						try {
+							await cacheManager.remove(ISRHandlerParams.url)
+						} catch (err) {
+							_ConsoleHandler2.default.error(err)
+						}
 						cacheManager.get()
 					} else {
 						totalRequestsToCrawl++

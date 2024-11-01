@@ -5,16 +5,11 @@ var _ServerConfigHandler = require('./utils/ServerConfigHandler')
 const ServerConfig = _ServerConfigHandler.defineServerConfig.call(void 0, {
 	crawl: {
 		enable: true,
-		optimize: ['shallow'],
+		optimize: 'deep',
 		routes: {
 			'/login': {
 				enable: false,
 			},
-		},
-	},
-	api: {
-		list: {
-			'http://localhost:3000/api': 'XXX',
 		},
 	},
 })

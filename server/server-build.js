@@ -6,6 +6,10 @@ const serverDistPath = './server/dist'
 if (fs.existsSync(serverDistPath)) {
 	try {
 		fs.emptyDirSync(serverDistPath)
+	} catch (err) {
+		console.error(err)
+	}
+	try {
 		fs.remove(serverDistPath)
 	} catch (err) {
 		console.error(err)

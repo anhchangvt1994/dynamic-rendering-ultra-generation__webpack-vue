@@ -18,7 +18,7 @@ type IFileInfo =
 	| undefined
 
 const deleteResource = (path: string) => {
-	return deleteResourceWithWorker(path)
+	deleteResourceWithWorker(path)
 } //  deleteResource
 
 const getFileInfo = async (file: string): Promise<IFileInfo> => {
@@ -121,6 +121,8 @@ const scanToCleanBrowsers = async (
 
 		for (const file of browserList) {
 			const absolutePath = path.join(dirPath, file)
+
+			if (file === 'wsEndpoint.txt') continue
 
 			if (
 				absolutePath === curUserDataPath ||

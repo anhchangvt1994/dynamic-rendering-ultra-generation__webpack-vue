@@ -63,6 +63,7 @@ const findFreePort = async (port) => {
 	let tmpPort = port
 	while (true) {
 		const isFree = await checkPort(tmpPort)
+		// console.log(`port ${port}${isFree ? ' isFree' : ''}`)
 		if (isFree) {
 			return tmpPort
 		}

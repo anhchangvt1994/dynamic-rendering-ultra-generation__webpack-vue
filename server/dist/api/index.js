@@ -95,9 +95,18 @@ const apiService = (async () => {
 
 			if (!apiInfo) return res.status(500).send('Internal Server Error')
 
-			const requestInfo = JSON.parse(
-				_StringHelper.decode.call(void 0, apiInfo.requestInfo || '')
-			)
+			const requestInfo = (() => {
+				let result
+				try {
+					result = JSON.parse(
+						_StringHelper.decode.call(void 0, apiInfo.requestInfo || '')
+					)
+				} catch (err) {
+					_ConsoleHandler2.default.error(err)
+				}
+
+				return result
+			})()
 
 			if (!requestInfo || !requestInfo.baseUrl || !requestInfo.endpoint)
 				return res.status(500).send('Internal Server Error')

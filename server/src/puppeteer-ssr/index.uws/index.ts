@@ -25,7 +25,7 @@ import {
 } from '../utils/FormatUrl.uws'
 import ISRGenerator from '../utils/ISRGenerator.next'
 import ISSRHandler from '../utils/ISRHandler.worker'
-import { handleResultAfterISRGenerator } from './utils'
+import { handleInvalidUrl, handleResultAfterISRGenerator } from './utils'
 
 const COOKIE_EXPIRED_SECOND = COOKIE_EXPIRED / 1000
 
@@ -138,9 +138,13 @@ const puppeteerSSRService = (async () => {
 				})
 		}
 		_app.get('/*', async function (res, req) {
-			if (req.getUrl().startsWith('/api')) {
-				return res.writeStatus('404').end('Not Found!', true)
-			}
+			// if (req.getUrl().startsWith('/api')) {
+			// 	return res.writeStatus('404').end('Not Found!', true)
+			// }
+			handleInvalidUrl(res, req)
+
+			// NOTE - Check if static will send static file
+			if (res.writableEnded) return
 
 			DetectStaticMiddle(res, req)
 

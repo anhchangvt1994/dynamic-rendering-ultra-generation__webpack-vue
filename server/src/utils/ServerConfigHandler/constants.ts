@@ -11,7 +11,7 @@ export const defaultServerConfig: IServerConfig = {
 		enable: true,
 		limit: 3,
 		speed: 3000,
-		content: ['desktop'],
+		content: ['desktop', 'mobile'],
 		cache: {
 			enable: true,
 			time: 4 * 3600, // 4 hours (second unit)

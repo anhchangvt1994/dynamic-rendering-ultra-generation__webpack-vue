@@ -16,12 +16,13 @@ import { ISSRResult } from '../../types'
 import CacheManager from '../CacheManager.worker/utils'
 import {
 	compressContent,
-	deepOptimizeContent,
-	scriptOptimizeContent,
 	shallowOptimizeContent,
+	deepOptimizeContent,
+	lowOptimizeContent,
+	scriptOptimizeContent,
 	styleOptimizeContent,
 } from '../OptimizeHtml.worker/utils'
-import { getInternalHTML, getInternalScript } from './utils'
+import { getInternalHTML, getInternalScript } from './utils/utils'
 
 interface IISRHandlerParam {
 	startGenerating: number
@@ -94,14 +95,17 @@ const waitResponse = (() => {
 			ServerConfig.crawl
 		).speed
 
+		const commonWaitingDuration = crawlSpeedOption / 10
+		const waitUntil = commonWaitingDuration <= 800 ? 'load' : 'domcontentloaded'
+
 		const firstWaitingDuration =
-			BANDWIDTH_LEVEL > BANDWIDTH_LEVEL_LIST.ONE ? crawlSpeedOption / 10 : 500
+			BANDWIDTH_LEVEL > BANDWIDTH_LEVEL_LIST.ONE ? commonWaitingDuration : 500
 		const defaultRequestWaitingDuration =
-			BANDWIDTH_LEVEL > BANDWIDTH_LEVEL_LIST.ONE ? crawlSpeedOption / 10 : 500
+			BANDWIDTH_LEVEL > BANDWIDTH_LEVEL_LIST.ONE ? commonWaitingDuration : 500
 		const requestServedFromCacheDuration =
-			BANDWIDTH_LEVEL > BANDWIDTH_LEVEL_LIST.ONE ? crawlSpeedOption / 10 : 500
+			BANDWIDTH_LEVEL > BANDWIDTH_LEVEL_LIST.ONE ? commonWaitingDuration : 500
 		const requestFailDuration =
-			BANDWIDTH_LEVEL > BANDWIDTH_LEVEL_LIST.ONE ? crawlSpeedOption / 10 : 500
+			BANDWIDTH_LEVEL > BANDWIDTH_LEVEL_LIST.ONE ? commonWaitingDuration : 500
 		const maximumTimeout =
 			BANDWIDTH_LEVEL > BANDWIDTH_LEVEL_LIST.ONE ? 20000 : 20000
 
@@ -124,7 +128,7 @@ const waitResponse = (() => {
 					safePage()
 						?.goto(url, {
 							// waitUntil: 'networkidle2',
-							waitUntil: 'load',
+							waitUntil,
 							timeout: 30000,
 						})
 						.then((res) => {
@@ -340,24 +344,11 @@ const ISRHandler = async (params: IISRHandlerParam) => {
 					}),
 				])
 
-				// await safePage()?.waitForNetworkIdle({ idleTime: 150 })
-				// await safePage()?.setCacheEnabled(false)
-				// await safePage()?.setRequestInterception(true)
-				// await safePage()?.setViewport({
-				// 	width: WINDOW_VIEWPORT_WIDTH,
-				// 	height: WINDOW_VIEWPORT_HEIGHT,
-				// })
-				// await safePage()?.setExtraHTTPHeaders({
-				// 	...specialInfo,
-				// 	service: 'puppeteer',
-				// })
-
 				safePage()?.on('request', async (req) => {
 					const resourceType = req.resourceType()
 
 					if (resourceType === 'stylesheet') {
-						if (ServerConfig.crawl)
-							req.respond({ status: 200, body: 'aborted' })
+						req.respond({ status: 200, body: 'aborted' })
 					} else if (
 						/(socket.io.min.js)+(?:$)|data:image\/[a-z]*.?\;base64/.test(url) ||
 						/googletagmanager.com|connect.facebook.net|asia.creativecdn.com|static.hotjar.com|deqik.com|contineljs.com|googleads.g.doubleclick.net|analytics.tiktok.com|google.com|gstatic.com|static.airbridge.io|googleadservices.com|google-analytics.com|sg.mmstat.com|t.contentsquare.net|accounts.google.com|browser.sentry-cdn.com|bat.bing.com|tr.snapchat.com|ct.pinterest.com|criteo.com|webchat.caresoft.vn|tags.creativecdn.com|script.crazyegg.com|tags.tiqcdn.com|trc.taboola.com|securepubads.g.doubleclick.net|partytown/.test(
@@ -444,7 +435,9 @@ const ISRHandler = async (params: IISRHandlerParam) => {
 				Console.log('ISRHandler line 297:')
 				Console.log('Crawler is fail!')
 				Console.error(err)
-				cacheManager.remove(url)
+				cacheManager.remove(url).catch((err) => {
+					Console.error(err)
+				})
 				safePage()?.close()
 				if (params.hasCache) {
 					cacheManager.rename({
@@ -500,25 +493,27 @@ const ISRHandler = async (params: IISRHandlerParam) => {
 			ServerConfig.crawl
 		).optimize
 
-		const enableShallowOptimize =
-			(optimizeOption === 'all' || optimizeOption.includes('shallow')) &&
-			enableOptimizeAndCompressIfRemoteCrawlerFail
-
-		const enableDeepOptimize =
-			(optimizeOption === 'all' || optimizeOption.includes('deep')) &&
-			enableOptimizeAndCompressIfRemoteCrawlerFail
-
 		const enableScriptOptimize =
-			optimizeOption !== 'all' &&
-			!optimizeOption.includes('shallow') &&
-			optimizeOption.includes('script') &&
+			optimizeOption &&
+			(typeof optimizeOption === 'string' ||
+				optimizeOption.includes('script')) &&
 			enableOptimizeAndCompressIfRemoteCrawlerFail
 
 		const enableStyleOptimize =
-			optimizeOption !== 'all' &&
-			!optimizeOption.includes('shallow') &&
-			optimizeOption.includes('style') &&
+			optimizeOption &&
+			(typeof optimizeOption === 'string' ||
+				optimizeOption.includes('style')) &&
 			enableOptimizeAndCompressIfRemoteCrawlerFail
+
+		const enableShallowOptimize =
+			optimizeOption === 'shallow' &&
+			enableOptimizeAndCompressIfRemoteCrawlerFail
+
+		const enableDeepOptimize =
+			optimizeOption === 'deep' && enableOptimizeAndCompressIfRemoteCrawlerFail
+
+		const enableLowOptimize =
+			optimizeOption === 'low' && enableOptimizeAndCompressIfRemoteCrawlerFail
 
 		const enableToCompress = (() => {
 			const options =
@@ -542,7 +537,21 @@ const ISRHandler = async (params: IISRHandlerParam) => {
 
 			if (enableStyleOptimize) html = await styleOptimizeContent(html)
 
-			if (enableShallowOptimize) html = await shallowOptimizeContent(html)
+			if (enableLowOptimize || enableShallowOptimize || enableDeepOptimize)
+				html = await lowOptimizeContent(html)
+
+			WorkerPool.workerEmit({
+				name: 'html',
+				value: html,
+			})
+
+			if (enableShallowOptimize || enableDeepOptimize)
+				html = await shallowOptimizeContent(html)
+
+			WorkerPool.workerEmit({
+				name: 'html',
+				value: html,
+			})
 
 			if (enableToCompress) html = await compressContent(html)
 
@@ -571,7 +580,9 @@ const ISRHandler = async (params: IISRHandlerParam) => {
 			isRaw,
 		})
 	} else {
-		cacheManager.remove(url)
+		cacheManager.remove(url).catch((err) => {
+			Console.error(err)
+		})
 		return {
 			status,
 			html: status === 404 ? 'Page not found!' : html,

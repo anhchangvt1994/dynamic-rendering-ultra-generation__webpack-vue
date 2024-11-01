@@ -28,13 +28,15 @@ var _fs = require('fs')
 var _fs2 = _interopRequireDefault(_fs)
 var _path = require('path')
 var _path2 = _interopRequireDefault(_path)
-var _constants = require('../../../constants')
 var _serverconfig = require('../../../server.config')
 var _serverconfig2 = _interopRequireDefault(_serverconfig)
 var _ConsoleHandler = require('../../../utils/ConsoleHandler')
 var _ConsoleHandler2 = _interopRequireDefault(_ConsoleHandler)
+var _PathHandler = require('../../../utils/PathHandler')
 
 var _utils = require('../Cache.worker/utils')
+
+const pagesPath = _PathHandler.getPagesPath.call(void 0)
 
 const maintainFile = _path2.default.resolve(__dirname, '../../../maintain.html')
 
@@ -123,17 +125,17 @@ const CacheManager = (url) => {
 		}
 
 		const key = _utils.getKey.call(void 0, url)
-		let file = `${_constants.pagesPath}/${key}.br`
+		let file = `${pagesPath}/${key}.br`
 		let isRaw = false
 
 		switch (true) {
 			case _fs2.default.existsSync(file):
 				break
-			case _fs2.default.existsSync(`${_constants.pagesPath}/${key}.renew.br`):
-				file = `${_constants.pagesPath}/${key}.renew.br`
+			case _fs2.default.existsSync(`${pagesPath}/${key}.renew.br`):
+				file = `${pagesPath}/${key}.renew.br`
 				break
 			default:
-				file = `${_constants.pagesPath}/${key}.raw.br`
+				file = `${pagesPath}/${key}.raw.br`
 				isRaw = true
 				break
 		}

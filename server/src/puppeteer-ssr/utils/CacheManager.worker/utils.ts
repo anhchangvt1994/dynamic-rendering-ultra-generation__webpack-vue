@@ -1,21 +1,23 @@
 import fs from 'fs'
 import path from 'path'
-import { pagesPath } from '../../../constants'
 import ServerConfig from '../../../server.config'
 import Console from '../../../utils/ConsoleHandler'
+import { getPagesPath } from '../../../utils/PathHandler'
 import { ISSRResult } from '../../types'
 import {
 	ICacheSetParams,
-	getKey as getCacheKey,
-	getFileInfo,
 	get as getCache,
-	set as setCache,
-	renew as renewCache,
+	getKey as getCacheKey,
+	getStatus as getCacheStatus,
+	getFileInfo,
+	isExist as isCacheExist,
 	remove as removeCache,
 	rename as renameCache,
-	isExist as isCacheExist,
-	getStatus as getCacheStatus,
+	renew as renewCache,
+	set as setCache,
 } from '../Cache.worker/utils'
+
+const pagesPath = getPagesPath()
 
 const maintainFile = path.resolve(__dirname, '../../../maintain.html')
 

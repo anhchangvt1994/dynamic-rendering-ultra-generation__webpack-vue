@@ -32,7 +32,7 @@ const BeforeEach = (function beforeEach() {
 
 	const _init = (router: Router) => {
 		router.beforeEach(async (to, from) => {
-			const result = await ServerRouterHandler(router, to, from)
+			let result = await ServerRouterHandler(router, to, from)
 
 			if (result.status === 404) return false
 			else if (result.status !== 200) {

@@ -36,12 +36,15 @@ var _store = require('../../store')
 var _ConsoleHandler = require('../../utils/ConsoleHandler')
 var _ConsoleHandler2 = _interopRequireDefault(_ConsoleHandler)
 var _FileHandler = require('../../utils/FileHandler')
+var _InitEnv = require('../../utils/InitEnv')
+var _PathHandler = require('../../utils/PathHandler')
 var _WorkerManager = require('../../utils/WorkerManager')
 var _WorkerManager2 = _interopRequireDefault(_WorkerManager)
 
 var _constants3 = require('../constants')
-var _InitEnv = require('../../utils/InitEnv')
 const { parentPort, isMainThread } = require('worker_threads')
+
+const userDataPath = _PathHandler.getUserDataPath.call(void 0)
 
 const workerManager = (() => {
 	if (!isMainThread) return
@@ -97,7 +100,7 @@ const _getBrowserForSubThreads = (() => {
 
 		const wsEndpoint = _FileHandler.getTextData.call(
 			void 0,
-			`${_constants.userDataPath}/wsEndpoint.txt`
+			`${userDataPath}/wsEndpoint.txt`
 		)
 
 		if (!wsEndpoint && counter < limit) {
@@ -133,8 +136,7 @@ function BrowserManager() {
 	else browserManager = this
 
 	if (isMainThread) {
-		const userDataDir = () =>
-			`${_constants.userDataPath}/user_data_${Date.now()}`
+		const userDataDir = () => `${userDataPath}/user_data_${Date.now()}`
 		const strUserDataDir = userDataDir()
 		const maxRequestPerBrowser = 10
 		let totalRequests = 0
@@ -253,7 +255,7 @@ function BrowserManager() {
 
 					_FileHandler.setTextData.call(
 						void 0,
-						`${_constants.userDataPath}/wsEndpoint.txt`,
+						`${userDataPath}/wsEndpoint.txt`,
 						browserStore.wsEndpoint
 					)
 

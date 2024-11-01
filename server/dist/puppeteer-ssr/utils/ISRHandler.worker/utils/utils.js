@@ -32,6 +32,8 @@ var _ConsoleHandler = require('../../../../utils/ConsoleHandler')
 var _ConsoleHandler2 = _interopRequireDefault(_ConsoleHandler)
 var _StringHelper = require('../../../../utils/StringHelper')
 
+// import sharp from 'sharp'
+
 const getInternalScript = async (params) => {
 	if (!params) {
 		_ConsoleHandler2.default.error('Need provide `params`')
@@ -133,3 +135,94 @@ const getInternalHTML = async (params) => {
 	}
 }
 exports.getInternalHTML = getInternalHTML // getInternalHTML
+
+// export const compressInternalImage = async (image: string) => {
+// 	if (!image) {
+// 		Console.log('Need provide `image`!')
+// 		return
+// 	}
+
+// 	let result
+// 	let timeout
+
+// 	try {
+// 		result = await new Promise((res, rej) => {
+// 			timeout = setTimeout(() => rej(new Error('Time out')), 300)
+
+// 			sharp(image)
+// 				.resize(200)
+// 				.jpeg({ mozjpeg: true, quality: 1 })
+// 				.toBuffer()
+// 				.then((data) => {
+// 					sharp(data)
+// 						.toFormat('webp', { quality: 1 })
+// 						.toBuffer()
+// 						.then((data) => {
+// 							res(data)
+// 						})
+// 					res(data)
+// 				})
+// 				.catch((err) => {
+// 					rej(err)
+// 				})
+// 		})
+// 	} catch (err) {
+// 		throw new Error(err)
+// 	}
+
+// 	return result
+// } // compressInternalImage
+
+// export const compressExternalImage = async (image: string) => {
+// 	if (!image) {
+// 		Console.log('Need provide `image`!')
+// 		return
+// 	}
+
+// 	let result
+// 	let timeout
+
+// 	try {
+// 		result = await new Promise((res, rej) => {
+// 			timeout = setTimeout(() => rej(new Error('Time out')), 300)
+
+// 			fetch(image)
+// 				.then(async (response) => {
+// 					try {
+// 						const imageArrBuffer = await response.arrayBuffer()
+
+// 						sharp(imageArrBuffer)
+// 							.resize(200)
+// 							.jpeg({ mozjpeg: true, quality: 20 })
+// 							.toBuffer()
+// 							.then((data) => {
+// 								sharp(data)
+// 									.toFormat('webp')
+// 									.toBuffer()
+// 									.then((data) => {
+// 										res(data)
+// 									})
+// 								res(data)
+// 							})
+// 							.catch((err) => {
+// 								rej(err)
+// 							})
+// 					} catch (err) {
+// 						rej(err)
+// 					} finally {
+// 						clearTimeout(timeout)
+// 					}
+// 				})
+// 				.catch((err) => {
+// 					rej(err)
+// 				})
+// 				.finally(() => {
+// 					clearTimeout(timeout)
+// 				})
+// 		})
+// 	} catch (err) {
+// 		throw new Error(err)
+// 	}
+
+// 	return result
+// } // compressExternalImage

@@ -37,6 +37,9 @@ var _WorkerManager = require('../../../utils/WorkerManager')
 var _WorkerManager2 = _interopRequireDefault(_WorkerManager)
 
 var _utils = require('../Cache.worker/utils')
+var _PathHandler = require('../../../utils/PathHandler')
+
+const pagesPath = _PathHandler.getPagesPath.call(void 0)
 
 const workerManager = _WorkerManager2.default.init(
 	_path2.default.resolve(
@@ -143,17 +146,17 @@ const CacheManager = (url) => {
 		}
 
 		const key = _utils.getKey.call(void 0, url)
-		let file = `${_constants.pagesPath}/${key}.br`
+		let file = `${pagesPath}/${key}.br`
 		let isRaw = false
 
 		switch (true) {
 			case _fs2.default.existsSync(file):
 				break
-			case _fs2.default.existsSync(`${_constants.pagesPath}/${key}.renew.br`):
-				file = `${_constants.pagesPath}/${key}.renew.br`
+			case _fs2.default.existsSync(`${pagesPath}/${key}.renew.br`):
+				file = `${pagesPath}/${key}.renew.br`
 				break
 			default:
-				file = `${_constants.pagesPath}/${key}.raw.br`
+				file = `${pagesPath}/${key}.raw.br`
 				isRaw = true
 				break
 		}

@@ -51,7 +51,7 @@ var _utils = require('../CacheManager.worker/utils')
 var _utils2 = _interopRequireDefault(_utils)
 
 var _utils3 = require('../OptimizeHtml.worker/utils')
-var _utils5 = require('./utils')
+var _utils5 = require('./utils/utils')
 
 const _getRestOfDuration = (startGenerating, gapDuration = 0) => {
 	if (!startGenerating) return 0
@@ -124,21 +124,24 @@ const waitResponse = (() => {
 			() => _serverconfig2.default.crawl
 		).speed
 
+		const commonWaitingDuration = crawlSpeedOption / 10
+		const waitUntil = commonWaitingDuration <= 800 ? 'load' : 'domcontentloaded'
+
 		const firstWaitingDuration =
 			_constants.BANDWIDTH_LEVEL > _constants.BANDWIDTH_LEVEL_LIST.ONE
-				? crawlSpeedOption / 10
+				? commonWaitingDuration
 				: 500
 		const defaultRequestWaitingDuration =
 			_constants.BANDWIDTH_LEVEL > _constants.BANDWIDTH_LEVEL_LIST.ONE
-				? crawlSpeedOption / 10
+				? commonWaitingDuration
 				: 500
 		const requestServedFromCacheDuration =
 			_constants.BANDWIDTH_LEVEL > _constants.BANDWIDTH_LEVEL_LIST.ONE
-				? crawlSpeedOption / 10
+				? commonWaitingDuration
 				: 500
 		const requestFailDuration =
 			_constants.BANDWIDTH_LEVEL > _constants.BANDWIDTH_LEVEL_LIST.ONE
-				? crawlSpeedOption / 10
+				? commonWaitingDuration
 				: 500
 		const maximumTimeout =
 			_constants.BANDWIDTH_LEVEL > _constants.BANDWIDTH_LEVEL_LIST.ONE
@@ -180,7 +183,7 @@ const waitResponse = (() => {
 						(_9) =>
 							_9(url, {
 								// waitUntil: 'networkidle2',
-								waitUntil: 'load',
+								waitUntil,
 								timeout: 30000,
 							}),
 						'access',
@@ -531,18 +534,6 @@ const ISRHandler = async (params) => {
 					]),
 				])
 
-				// await safePage()?.waitForNetworkIdle({ idleTime: 150 })
-				// await safePage()?.setCacheEnabled(false)
-				// await safePage()?.setRequestInterception(true)
-				// await safePage()?.setViewport({
-				// 	width: WINDOW_VIEWPORT_WIDTH,
-				// 	height: WINDOW_VIEWPORT_HEIGHT,
-				// })
-				// await safePage()?.setExtraHTTPHeaders({
-				// 	...specialInfo,
-				// 	service: 'puppeteer',
-				// })
-
 				_optionalChain([
 					safePage,
 					'call',
@@ -555,8 +546,7 @@ const ISRHandler = async (params) => {
 							const resourceType = req.resourceType()
 
 							if (resourceType === 'stylesheet') {
-								if (_serverconfig2.default.crawl)
-									req.respond({ status: 200, body: 'aborted' })
+								req.respond({ status: 200, body: 'aborted' })
 							} else if (
 								/(socket.io.min.js)+(?:$)|data:image\/[a-z]*.?\;base64/.test(
 									url
@@ -665,7 +655,9 @@ const ISRHandler = async (params) => {
 				_ConsoleHandler2.default.log('ISRHandler line 297:')
 				_ConsoleHandler2.default.log('Crawler is fail!')
 				_ConsoleHandler2.default.error(err)
-				cacheManager.remove(url)
+				cacheManager.remove(url).catch((err) => {
+					_ConsoleHandler2.default.error(err)
+				})
 				_optionalChain([
 					safePage,
 					'call',
@@ -766,25 +758,27 @@ const ISRHandler = async (params) => {
 			() => _serverconfig2.default.crawl
 		).optimize
 
-		const enableShallowOptimize =
-			(optimizeOption === 'all' || optimizeOption.includes('shallow')) &&
-			enableOptimizeAndCompressIfRemoteCrawlerFail
-
-		const enableDeepOptimize =
-			(optimizeOption === 'all' || optimizeOption.includes('deep')) &&
-			enableOptimizeAndCompressIfRemoteCrawlerFail
-
 		const enableScriptOptimize =
-			optimizeOption !== 'all' &&
-			!optimizeOption.includes('shallow') &&
-			optimizeOption.includes('script') &&
+			optimizeOption &&
+			(typeof optimizeOption === 'string' ||
+				optimizeOption.includes('script')) &&
 			enableOptimizeAndCompressIfRemoteCrawlerFail
 
 		const enableStyleOptimize =
-			optimizeOption !== 'all' &&
-			!optimizeOption.includes('shallow') &&
-			optimizeOption.includes('style') &&
+			optimizeOption &&
+			(typeof optimizeOption === 'string' ||
+				optimizeOption.includes('style')) &&
 			enableOptimizeAndCompressIfRemoteCrawlerFail
+
+		const enableShallowOptimize =
+			optimizeOption === 'shallow' &&
+			enableOptimizeAndCompressIfRemoteCrawlerFail
+
+		const enableDeepOptimize =
+			optimizeOption === 'deep' && enableOptimizeAndCompressIfRemoteCrawlerFail
+
+		const enableLowOptimize =
+			optimizeOption === 'low' && enableOptimizeAndCompressIfRemoteCrawlerFail
 
 		const enableToCompress = (() => {
 			const options = _nullishCoalesce(
@@ -813,8 +807,21 @@ const ISRHandler = async (params) => {
 			if (enableStyleOptimize)
 				html = await _utils3.styleOptimizeContent.call(void 0, html)
 
-			if (enableShallowOptimize)
+			if (enableLowOptimize || enableShallowOptimize || enableDeepOptimize)
+				html = await _utils3.lowOptimizeContent.call(void 0, html)
+
+			_workerpool2.default.workerEmit({
+				name: 'html',
+				value: html,
+			})
+
+			if (enableShallowOptimize || enableDeepOptimize)
 				html = await _utils3.shallowOptimizeContent.call(void 0, html)
+
+			_workerpool2.default.workerEmit({
+				name: 'html',
+				value: html,
+			})
 
 			if (enableToCompress)
 				html = await _utils3.compressContent.call(void 0, html)
@@ -844,7 +851,9 @@ const ISRHandler = async (params) => {
 			isRaw,
 		})
 	} else {
-		cacheManager.remove(url)
+		cacheManager.remove(url).catch((err) => {
+			_ConsoleHandler2.default.error(err)
+		})
 		return {
 			status,
 			html: status === 404 ? 'Page not found!' : html,

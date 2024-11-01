@@ -46,7 +46,7 @@ var _FileHandler = require('../FileHandler')
 var _utils = require('./utils')
 
 const deleteResource = (path) => {
-	return _utils.deleteResource.call(void 0, path)
+	_utils.deleteResource.call(void 0, path)
 } //  deleteResource
 
 const getFileInfo = async (file) => {
@@ -134,6 +134,8 @@ const scanToCleanBrowsers = async (dirPath, expiredTime = 1, browserStore) => {
 
 		for (const file of browserList) {
 			const absolutePath = _path2.default.join(dirPath, file)
+
+			if (file === 'wsEndpoint.txt') continue
 
 			if (
 				absolutePath === curUserDataPath ||

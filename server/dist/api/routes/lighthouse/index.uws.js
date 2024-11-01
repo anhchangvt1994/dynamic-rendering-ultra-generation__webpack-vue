@@ -69,7 +69,7 @@ const apiLighthouse = (() => {
 
 			res.onAborted(() => {
 				res.writableEnded = true
-				totalRequests--
+				totalRequests = totalRequests > 0 ? totalRequests - 1 : 0
 				_ConsoleHandler2.default.log('Request aborted')
 			})
 
@@ -124,11 +124,12 @@ const apiLighthouse = (() => {
 						'User-Agent':
 							'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Chrome/118.0.0.0 Safari/537.36',
 					},
+					timeout: 'infinite',
 				})
 
 				if (result.status !== 200) {
 					if (!res.writableEnded) {
-						totalRequests--
+						totalRequests = totalRequests > 0 ? totalRequests - 1 : 0
 						res.cork(() => {
 							const statusMessage = result.message || 'Internal Server Error'
 							res
@@ -146,7 +147,10 @@ const apiLighthouse = (() => {
 							_utils.fetchData
 								.call(
 									void 0,
-									`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${urlParam}&strategy=mobile&category=ACCESSIBILITY&category=BEST_PRACTICES&category=PERFORMANCE&category=SEO`
+									`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${urlParam}&strategy=mobile&category=ACCESSIBILITY&category=BEST_PRACTICES&category=PERFORMANCE&category=SEO`,
+									{
+										timeout: 'infinite',
+									}
 								)
 								.then((response) => {
 									if (response.status === 200) {
@@ -161,7 +165,10 @@ const apiLighthouse = (() => {
 							_utils.fetchData
 								.call(
 									void 0,
-									`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${requestUrl}&strategy=mobile&category=ACCESSIBILITY&category=BEST_PRACTICES&category=PERFORMANCE&category=SEO`
+									`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${requestUrl}&strategy=mobile&category=ACCESSIBILITY&category=BEST_PRACTICES&category=PERFORMANCE&category=SEO`,
+									{
+										timeout: 'infinite',
+									}
 								)
 								.then((response) => {
 									if (response.status === 200) {
@@ -252,7 +259,7 @@ const apiLighthouse = (() => {
 						return tmpLighthouseResponse
 					})()
 
-					totalRequests--
+					totalRequests = totalRequests > 0 ? totalRequests - 1 : 0
 
 					if (!res.writableEnded) {
 						res.cork(() => {

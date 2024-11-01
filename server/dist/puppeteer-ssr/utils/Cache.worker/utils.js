@@ -38,14 +38,17 @@ var _fs2 = _interopRequireDefault(_fs)
 var _path = require('path')
 var _path2 = _interopRequireDefault(_path)
 var _zlib = require('zlib')
-var _constants = require('../../../constants')
 var _ConsoleHandler = require('../../../utils/ConsoleHandler')
 var _ConsoleHandler2 = _interopRequireDefault(_ConsoleHandler)
 
-if (!_fs2.default.existsSync(_constants.pagesPath)) {
+var _PathHandler = require('../../../utils/PathHandler')
+
+const pagesPath = _PathHandler.getPagesPath.call(void 0)
+
+if (!_fs2.default.existsSync(pagesPath)) {
 	try {
-		_fs2.default.mkdirSync(_constants.pagesPath)
-		_fs2.default.mkdirSync(`${_constants.pagesPath}/info`)
+		_fs2.default.mkdirSync(pagesPath)
+		_fs2.default.mkdirSync(`${pagesPath}/info`)
 	} catch (err) {
 		_ConsoleHandler2.default.error(err)
 	}
@@ -150,17 +153,17 @@ const get = async (url, options) => {
 
 	const key = exports.getKey.call(void 0, url)
 
-	let file = `${_constants.pagesPath}/${key}.br`
+	let file = `${pagesPath}/${key}.br`
 	let isRaw = false
 
 	switch (true) {
 		case _fs2.default.existsSync(file):
 			break
-		case _fs2.default.existsSync(`${_constants.pagesPath}/${key}.renew.br`):
-			file = `${_constants.pagesPath}/${key}.renew.br`
+		case _fs2.default.existsSync(`${pagesPath}/${key}.renew.br`):
+			file = `${pagesPath}/${key}.renew.br`
 			break
 		default:
-			file = `${_constants.pagesPath}/${key}.raw.br`
+			file = `${pagesPath}/${key}.raw.br`
 			isRaw = true
 			break
 	}
@@ -174,7 +177,7 @@ const get = async (url, options) => {
 			await Promise.all([
 				_fs2.default.writeFileSync(file, ''),
 				_fs2.default.writeFileSync(
-					`${_constants.pagesPath}/info/${key}.txt`,
+					`${pagesPath}/info/${key}.txt`,
 					url
 						.replace('/?', '?')
 						.replace(exports.regexKeyConverterWithoutLocaleInfo, '')
@@ -278,22 +281,20 @@ const set = async (
 		return
 	}
 
-	const file = `${_constants.pagesPath}/${key}${isRaw ? '.raw' : ''}.br`
+	const file = `${pagesPath}/${key}${isRaw ? '.raw' : ''}.br`
 
 	if (!isRaw) {
-		if (_fs2.default.existsSync(`${_constants.pagesPath}/${key}.renew.br`))
+		if (_fs2.default.existsSync(`${pagesPath}/${key}.renew.br`))
 			try {
-				_fs2.default.renameSync(`${_constants.pagesPath}/${key}.renew.br`, file)
+				_fs2.default.renameSync(`${pagesPath}/${key}.renew.br`, file)
 			} catch (err) {
 				_ConsoleHandler2.default.error(err)
-				return
 			}
-		else if (_fs2.default.existsSync(`${_constants.pagesPath}/${key}.raw.br`))
+		else if (_fs2.default.existsSync(`${pagesPath}/${key}.raw.br`))
 			try {
-				_fs2.default.renameSync(`${_constants.pagesPath}/${key}.raw.br`, file)
+				_fs2.default.renameSync(`${pagesPath}/${key}.raw.br`, file)
 			} catch (err) {
 				_ConsoleHandler2.default.error(err)
-				return
 			}
 	}
 
@@ -308,7 +309,6 @@ const set = async (
 			_ConsoleHandler2.default.log(`File ${file} was updated!`)
 		} catch (err) {
 			_ConsoleHandler2.default.error(err)
-			return
 		}
 	}
 
@@ -325,18 +325,18 @@ const renew = async (url) => {
 	const key = exports.getKey.call(void 0, url)
 	let hasRenew = true
 
-	const file = `${_constants.pagesPath}/${key}.renew.br`
+	const file = `${pagesPath}/${key}.renew.br`
 
 	if (!_fs2.default.existsSync(file)) {
 		hasRenew = false
 		const curFile = (() => {
-			let tmpCurFile = `${_constants.pagesPath}/${key}.br`
+			let tmpCurFile = `${pagesPath}/${key}.br`
 
 			switch (true) {
 				case _fs2.default.existsSync(tmpCurFile):
 					break
 				default:
-					tmpCurFile = `${_constants.pagesPath}/${key}.raw.br`
+					tmpCurFile = `${pagesPath}/${key}.raw.br`
 			}
 
 			return tmpCurFile
@@ -346,7 +346,6 @@ const renew = async (url) => {
 			_fs2.default.renameSync(curFile, file)
 		} catch (err) {
 			_ConsoleHandler2.default.error(err)
-			return
 		}
 	}
 
@@ -360,12 +359,12 @@ const remove = async (url) => {
 
 	const curFile = (() => {
 		switch (true) {
-			case _fs2.default.existsSync(`${_constants.pagesPath}/${key}.raw.br`):
-				return `${_constants.pagesPath}/${key}.raw.br`
-			case _fs2.default.existsSync(`${_constants.pagesPath}/${key}.br`):
-				return `${_constants.pagesPath}/${key}.br`
-			case _fs2.default.existsSync(`${_constants.pagesPath}/${key}.renew.br`):
-				return `${_constants.pagesPath}/${key}.renew.br`
+			case _fs2.default.existsSync(`${pagesPath}/${key}.raw.br`):
+				return `${pagesPath}/${key}.raw.br`
+			case _fs2.default.existsSync(`${pagesPath}/${key}.br`):
+				return `${pagesPath}/${key}.br`
+			case _fs2.default.existsSync(`${pagesPath}/${key}.renew.br`):
+				return `${pagesPath}/${key}.renew.br`
 			default:
 				return
 		}
@@ -376,33 +375,32 @@ const remove = async (url) => {
 	try {
 		await Promise.all([
 			_fs2.default.unlinkSync(curFile),
-			_fs2.default.unlinkSync(`${_constants.pagesPath}/info/${key}.txt`),
+			_fs2.default.unlinkSync(`${pagesPath}/info/${key}.txt`),
 		])
 	} catch (err) {
-		console.error(err)
-		throw err
+		_ConsoleHandler2.default.error(err)
 	}
 }
 exports.remove = remove // remove
 
 const rename = (params) => {
-	if (!params || !params.url)
-		return _ConsoleHandler2.default.log('Url can not empty!')
+	if (!params || !params.url) {
+		_ConsoleHandler2.default.log('Url can not empty!')
+		return
+	}
 
 	const key = exports.getKey.call(void 0, params.url)
-	const file = `${_constants.pagesPath}/${key}${
-		params.type ? '.' + params.type : ''
-	}.br`
+	const file = `${pagesPath}/${key}${params.type ? '.' + params.type : ''}.br`
 
 	if (!_fs2.default.existsSync(file)) {
 		const curFile = (() => {
 			switch (true) {
-				case _fs2.default.existsSync(`${_constants.pagesPath}/${key}.raw.br`):
-					return `${_constants.pagesPath}/${key}.raw.br`
-				case _fs2.default.existsSync(`${_constants.pagesPath}/${key}.br`):
-					return `${_constants.pagesPath}/${key}.br`
-				case _fs2.default.existsSync(`${_constants.pagesPath}/${key}.renew.br`):
-					return `${_constants.pagesPath}/${key}.renew.br`
+				case _fs2.default.existsSync(`${pagesPath}/${key}.raw.br`):
+					return `${pagesPath}/${key}.raw.br`
+				case _fs2.default.existsSync(`${pagesPath}/${key}.br`):
+					return `${pagesPath}/${key}.br`
+				case _fs2.default.existsSync(`${pagesPath}/${key}.renew.br`):
+					return `${pagesPath}/${key}.renew.br`
 				default:
 					return
 			}
@@ -414,7 +412,6 @@ const rename = (params) => {
 			_fs2.default.renameSync(curFile, file)
 		} catch (err) {
 			_ConsoleHandler2.default.error(err)
-			return
 		}
 	}
 }
@@ -429,9 +426,9 @@ const isExist = (url) => {
 	const key = exports.getKey.call(void 0, url)
 
 	return (
-		_fs2.default.existsSync(`${_constants.pagesPath}/${key}.raw.br`) ||
-		_fs2.default.existsSync(`${_constants.pagesPath}/${key}.br`) ||
-		_fs2.default.existsSync(`${_constants.pagesPath}/${key}.renew.br`)
+		_fs2.default.existsSync(`${pagesPath}/${key}.raw.br`) ||
+		_fs2.default.existsSync(`${pagesPath}/${key}.br`) ||
+		_fs2.default.existsSync(`${pagesPath}/${key}.renew.br`)
 	)
 }
 exports.isExist = isExist // isExist
@@ -445,9 +442,9 @@ const getStatus = (url) => {
 	const key = exports.getKey.call(void 0, url)
 
 	switch (true) {
-		case _fs2.default.existsSync(`${_constants.pagesPath}/${key}.raw.br`):
+		case _fs2.default.existsSync(`${pagesPath}/${key}.raw.br`):
 			return 'raw'
-		case _fs2.default.existsSync(`${_constants.pagesPath}/${key}.renew.br`):
+		case _fs2.default.existsSync(`${pagesPath}/${key}.renew.br`):
 			return 'renew'
 		default:
 			return 'ok'

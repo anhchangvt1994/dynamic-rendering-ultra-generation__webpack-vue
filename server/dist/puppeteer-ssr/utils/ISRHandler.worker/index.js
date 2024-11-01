@@ -166,7 +166,9 @@ const ISRHandler = async (params) => {
 	}
 
 	if (!result || result.status !== 200) {
-		cacheManager.remove(params.url)
+		cacheManager.remove(params.url).catch((err) => {
+			_ConsoleHandler2.default.error(err)
+		})
 	}
 
 	freePool.terminate({

@@ -6,12 +6,13 @@ import {
 	POWER_LEVEL_LIST,
 	SERVER_LESS,
 	resourceExtension,
-	userDataPath,
 } from '../../constants'
 import ServerConfig from '../../server.config'
 import { getStore, setStore } from '../../store'
 import Console from '../../utils/ConsoleHandler'
 import { getTextData, setTextData } from '../../utils/FileHandler'
+import { ENV_MODE } from '../../utils/InitEnv'
+import { getUserDataPath } from '../../utils/PathHandler'
 import WorkerManager from '../../utils/WorkerManager'
 import {
 	canUseLinuxChromium,
@@ -19,8 +20,9 @@ import {
 	defaultBrowserOptions,
 	puppeteer,
 } from '../constants'
-import { ENV_MODE } from '../../utils/InitEnv'
 const { parentPort, isMainThread } = require('worker_threads')
+
+const userDataPath = getUserDataPath()
 
 export interface IBrowser {
 	get: () => Promise<Browser | undefined>
