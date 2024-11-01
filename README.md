@@ -79,7 +79,7 @@ So, what is `Dynamic-Rendering` ?
 
 <h2 id="the-interesting-stories">The interesting stories</h2>
 
-### The `Rendering` world {#the-rendering-world}
+<h3 id="the-rendering-world">The `Rendering` world</h3>
 
 The Web-Frontend has so many growth in a long-long time. At the current, we have so many ways to make a website can be easier for rendering. Some popular solutions such as `Client-side Rendering (CSR)`, `Server-side Rendering (SSR)`, `Static-site Generation (SSG)`, `Incremental Static Regeneration (ISR)`. And beside the popular solutions, the `Dynamic Rendering (DR)` is also a excellent solution that we can use.
 
@@ -104,7 +104,7 @@ See some workflows at below to get more detail.
 ![Incremental Static Regeneration Workflow](/READMORE/images/incremental-static-regeneration-workflow.jpg 'Incremental Static Regeneration Workflow')
 ![Pre-rendering Workflow](/READMORE/images/pre-rendering-workflow.jpg 'Pre-rendering Workflow')
 
-### `Dynamic Rendering`! Where have you been all this time ?{#dynamic-rendering-where-have-you-been}
+<h3 id="dynamic-rendering-where-have-you-been">`Dynamic Rendering`! Where have you been all this time ?</h3>
 
 As you can see in the above rendering workflows, the `Dynamic Rendering` workflow is complexer than other.
 
