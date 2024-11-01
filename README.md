@@ -14,18 +14,19 @@ IF so, I think this project can help you. All you need to do is know how to use 
 Specifically, the system will transform your client side rendering project so that it can be SEO without you having to do anything. In addition, the system will help you optimize all light-house scores to the highest possible level, and you don’t have to do anything either. You haven’t been pressured to optimize the light-house score yet, have you? apply quickly, still in time
 
 NOTE
-- You can read detail about advanced structure of Webpack + React + TS project in this [repository](https://github.com/anhchangvt1994/webpack-project--template-vue-ts).
-- You can read detail about router, suspense and some common utilities in this [repository](https://github.com/anhchangvt1994/webpack-project--template-vue-ts__react-router).
+- You can read detail about advanced structure of Webpack + VueJS + TS project in this [repository](https://github.com/anhchangvt1994/webpack-project--template-vue-ts).
+- You can read detail about router, suspense and some common utilities in this [repository](https://github.com/anhchangvt1994/webpack-project--template-vue-ts__vue-router).
 
 ## Table of contents
 
 1. [Install](#install)
 2. [How it works ?](#how-it-works)
-<br/>
+
 3. Configuration
   - [Config redirect](/READMORE/redirect-config.md)
   - [Config server](/READMORE/server-config.md)
   - [Server environment variables](/READMORE/server-enviroment-variables.md)
+
 4. Utilities
   - [Meta SEO tags](/READMORE/meta-seo-tags.md)
   - [Link SEO tags](/READMORE/link-seo-tags.md)
@@ -37,7 +38,7 @@ NOTE
   - [Proxy API](/READMORE/proxy-api.md)
 
 5. [Deployment guide](/READMORE/deployment.md)
-<br/>
+
 6. [The interesting stories](#the-interesting-stories)
   - [The `Rendering` world](#the-rendering-world)
   - [`Dynamic Rendering`! Where have you been all this time ?](#dynamic-rendering-where-have-you-been)
