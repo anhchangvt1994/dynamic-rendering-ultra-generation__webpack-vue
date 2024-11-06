@@ -269,7 +269,11 @@ const SSRGenerator = async ({ isSkipWaiting = false, ...ISRHandlerParams }) => {
 												})
 											}
 										})
-							} else if (!waitingToCrawlList.has(ISRHandlerParams.url)) {
+							} else if (
+								!hasRenew &&
+								totalRequestsToCrawl >= certainLimitRequestToCrawl &&
+								!waitingToCrawlList.has(ISRHandlerParams.url)
+							) {
 								waitingToCrawlList.set(ISRHandlerParams.url, ISRHandlerParams)
 							}
 						})

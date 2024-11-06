@@ -232,7 +232,11 @@ const SSRGenerator = async ({
 											})
 										}
 									})
-							} else if (!waitingToCrawlList.has(ISRHandlerParams.url)) {
+							} else if (
+								!hasRenew &&
+								totalRequestsToCrawl >= certainLimitRequestToCrawl &&
+								!waitingToCrawlList.has(ISRHandlerParams.url)
+							) {
 								waitingToCrawlList.set(ISRHandlerParams.url, ISRHandlerParams)
 							}
 						})
