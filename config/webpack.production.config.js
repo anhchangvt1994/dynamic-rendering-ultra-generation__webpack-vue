@@ -98,12 +98,12 @@ module.exports = (async () => {
 			entrypoints: false,
 			excludeAssets: [/\.*\.map/],
 		},
-		cache: {
-			type: 'filesystem',
-			allowCollectingMemory: true,
-			memoryCacheUnaffected: true,
-			compression: 'gzip',
-		},
+		// cache: {
+		// 	type: 'filesystem',
+		// 	allowCollectingMemory: true,
+		// 	memoryCacheUnaffected: true,
+		// 	compression: 'gzip',
+		// },
 		performance: {
 			maxEntrypointSize: 512000,
 			maxAssetSize: 512000,

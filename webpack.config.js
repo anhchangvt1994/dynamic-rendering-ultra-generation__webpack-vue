@@ -95,7 +95,8 @@ module.exports = async (env, arg) => {
 						{
 							loader: 'sass-loader',
 							options: {
-								additionalData: '@import "main.scss";',
+								api: 'modern-compiler',
+								additionalData: '@use "assets/styles/main.scss" as *;',
 								sassOptions: {
 									hmr: true,
 									includePaths: [

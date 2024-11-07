@@ -1,2 +1,2 @@
-@import 'vars/color';
-@import 'layout/reset';
+@forward 'vars/color';
+@use 'layout/reset';
